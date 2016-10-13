@@ -36,12 +36,25 @@ vector<Atleta> Competencia::lesTocoControlAntiDoping() const {
         res.push_back( _lesTocoControlAntiDoping[i].first );
         i++;
     }
-    
+
     return res;
 }
 
-bool Competencia::leDioPositivo(const Atleta &a) const {
+bool Competencia::mismosAtletas(const Competencia &c) const {
     return false;
+}
+
+bool Competencia::leDioPositivo(const Atleta &a) const {
+    bool res = false;
+    int i = 0;
+
+    while ( i < _lesTocoControlAntiDoping.size() ) {
+        if ( _lesTocoControlAntiDoping[i].first == a )
+            res = _lesTocoControlAntiDoping[i].second;
+        i++;
+    }
+
+    return res;
 }
 
 void Competencia::finalizar(const vector<int> &posiciones, const vector<pair<int, bool> > &control) {
