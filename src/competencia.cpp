@@ -40,10 +40,6 @@ vector<Atleta> Competencia::lesTocoControlAntiDoping() const {
     return res;
 }
 
-bool Competencia::mismosAtletas(const Competencia &c) const {
-    return false;
-}
-
 bool Competencia::leDioPositivo(const Atleta &a) const {
     bool res = false;
     int i = 0;
