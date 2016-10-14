@@ -34,6 +34,69 @@ vector<Competencia> JJOO::cronograma(const int &d) const {
     return _cronograma[d-1];
 }
 
+vector<Pais> JJOO::paises() const {
+    int i = 0;
+    vector<Pais> res;
+
+    while ( i < _atletas.size() ) {
+        bool ya_esta = false;
+        int j = 0;
+
+        while ( j<i && !ya_esta) {
+            if ( res[j] == _atletas[i].nacionalidad() )
+                ya_esta = true;
+            j++;
+        }
+
+        if ( !ya_esta )
+            res.push_back( _atletas[i].nacionalidad() );
+
+        i++;
+    }
+    return res;
+}
+
+bool JJOO::masMedallas(const Pais &p1, const Pais &p2) const {
+    if ( this->cantidadMedallasOro(p1) > this->cantidadMedallasOro(p2) )
+        return true;
+    if ( this->cantidadMedallasOro(p1) == this->cantidadMedallasOro(p2) && this->cantidadMedallasPlata(p1) > this->cantidadMedallasPlata(p2) )
+        return true;
+    if ( this->cantidadMedallasOro(p1) == this->cantidadMedallasOro(p2) && this->cantidadMedallasPlata(p1) == this->cantidadMedallasPlata(p2) && this->cantidadMedallasBronce(p1) > this->cantidadMedallasBronce(p2) )
+        return true;
+    return false;
+}
+
+int JJOO::posMax(const vector<pair<Pais, vector<int> > > &m, const int a) const {
+    int i = 0;
+    int res = 0;
+
+    while (i < a) {
+        if (masMedallas(m[i].first, m[res].first)) {
+            res = i;
+
+        }
+        i++;
+    }
+
+    return res;
+
+}
+
+void JJOO::swap(vector<pair<Pais, vector<int> > > &m, const int n, const int k) const {
+    pair<Pais, vector<int> > temp = m[n];
+    m[n] = m[k];
+    m[k] = temp;
+}
+
+void JJOO::ordenarMedallero(vector<pair<Pais, vector<int> > > &m) const {
+    int actual = m.size()-1;
+    while (actual > 0) {
+        int max = this->posMax(m,actual);
+        this->swap(m,max,actual);
+        actual=actual-1;
+    }
+}
+
 vector<Competencia> JJOO::competencias() const {
 
     vector<Competencia> vectorcomp;
@@ -48,6 +111,63 @@ vector<Competencia> JJOO::competencias() const {
     i++;
     }
     return vectorcomp;
+}
+
+int JJOO::cantidadMedallasOro(const Pais &p) const {
+    int cant = 0;
+    int i = 0;
+    vector<Competencia> comps = this->competencias();
+
+    while ( i < comps.size() ) {
+
+        if ( comps[i].finalizada() ) {
+            vector<Atleta> r_actual = comps[i].ranking();
+            if ( r_actual.size() > 0 && r_actual[0].nacionalidad() == p )
+                cant++;
+        }
+
+        i++;
+    }
+
+    return cant;
+}
+
+int JJOO::cantidadMedallasPlata(const Pais &p) const {
+    int cant = 0;
+    int i = 0;
+    vector<Competencia> comps = this->competencias();
+
+    while ( i < comps.size() ) {
+
+        if ( comps[i].finalizada() ) {
+            vector<Atleta> r_actual = comps[i].ranking();
+            if ( r_actual.size() > 1 && r_actual[1].nacionalidad() == p )
+                cant++;
+        }
+
+        i++;
+    }
+
+    return cant;
+}
+
+int JJOO::cantidadMedallasBronce(const Pais &p) const {
+    int cant = 0;
+    int i = 0;
+    vector<Competencia> comps = this->competencias();
+
+    while ( i < comps.size() ) {
+
+        if ( comps[i].finalizada() ) {
+            vector<Atleta> r_actual = comps[i].ranking();
+            if ( r_actual.size() > 2 && r_actual[2].nacionalidad() == p )
+                cant++;
+        }
+
+        i++;
+    }
+
+    return cant;
 }
 
 vector<Competencia> JJOO::competenciasFinalizadasConOroEnPodio() const {
@@ -69,26 +189,77 @@ vector<Competencia> JJOO::competenciasFinalizadasConOroEnPodio() const {
 
 vector<Atleta> JJOO::dePaseo() const {
 
-    vector<Atleta> at_pasea;
+    vector<Atleta> res;
+    vector<Competencia> comps = this->competencias();
     int i = 0;
 
-    while (i<_atletas.size()){
+     while (i<_atletas.size()){
+         int j = 0;
+         bool pasea = true;
+
+         while ( j < comps.size() && pasea ) {
+             int k = 0;
+             vector<Atleta> parts_actuales = comps[j].participantes();
+             int participa = false;
+
+             while ( k < parts_actuales.size() && !participa ) {
+                 if ( parts_actuales[k] == _atletas[i] ) {
+                     participa = true;
+                     pasea = false;
+                 }
+                 k++;
+             }
+             j++;
+         }
+         if ( pasea )
+             res.push_back( _atletas[i] );
+         i++;
+     }
 
 
-
-    }
-
-
-    return ret;
+    return res;
 }
 
 vector<pair<Pais, vector<int> > > JJOO::medallero() const {
-    vector<pair<Pais, vector<int> > > ret;
-    return ret;
+    vector<pair<Pais, vector<int> > > res;
+    vector<Pais> paises = this->paises();
+    int i = 0;
+
+    while ( i < paises.size() ) {
+        vector<int> medallas;
+        medallas.push_back( cantidadMedallasOro(paises[i]) );
+        medallas.push_back( cantidadMedallasPlata(paises[i]) );
+        medallas.push_back( cantidadMedallasBronce(paises[i]) );
+
+        pair<Pais, vector<int> > infopais = make_pair(paises[i],medallas);
+        res.push_back(infopais);
+
+        i++;
+    }
+
+    this->ordenarMedallero(res);
+    return res;
 }
 
 int JJOO::boicotPorDisciplina(const Categoria &c, const Pais &p) {
-    return 0;
+    vector<vector<Competencia>> cron_mod;
+    int res = 0;
+    int i = 0;
+
+    while ( i < _cronograma.size() ) {
+        vector<Competencia> comps_mod;
+        int j = 0;
+        vector<Competencia> comps = _cronograma[i];
+
+        while ( j < comps.size() ) {
+            
+            j++;
+        }
+        i++;
+    }
+
+    _cronograma = cron_mod;
+    return res;
 }
 
 vector<Atleta> JJOO::losMasFracasados(const Pais &p) const {

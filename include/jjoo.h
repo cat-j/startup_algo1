@@ -13,6 +13,14 @@ private:
     vector<Atleta> _atletas;
     vector<vector<Competencia> > _cronograma;
     int _jornadaActual;
+    vector<Pais> paises() const;
+    int cantidadMedallasOro(const Pais &p) const;
+    int cantidadMedallasPlata(const Pais &p) const;
+    int cantidadMedallasBronce(const Pais &p) const;
+    bool masMedallas(const Pais &p1, const Pais &p2) const;
+    int posMax(const vector<pair<Pais, vector<int> > > &m, const int n) const;
+    void swap(vector<pair<Pais, vector<int> > > &m, const int n, const int k) const;
+    void ordenarMedallero(vector<pair<Pais, vector<int> > > &m) const;
 
     friend class jjoo_tests_competencias_al_transcurrir_un_dia_Test;
 
