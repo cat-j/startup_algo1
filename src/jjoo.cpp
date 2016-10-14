@@ -73,8 +73,6 @@ vector<Atleta> JJOO::dePaseo() const {
     int i = 0;
 
     while (i<_atletas.size()){
-        int j=0;
-        while
 
 
 
