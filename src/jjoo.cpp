@@ -252,7 +252,7 @@ int JJOO::boicotPorDisciplina(const Categoria &c, const Pais &p) {
         vector<Competencia> comps = _cronograma[i];
 
         while ( j < comps.size() ) {
-            
+
             j++;
         }
         i++;
