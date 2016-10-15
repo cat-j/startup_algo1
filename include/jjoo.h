@@ -22,6 +22,14 @@ private:
     void swap(vector<pair<Pais, vector<int> > > &m, const int n, const int k) const;
     void ordenarMedallero(vector<pair<Pais, vector<int> > > &m) const;
     Competencia sacarPais(const Competencia &c, const Pais &p) const;
+    vector<Atleta> atletasDelPais(const Pais &p)const;
+    int cantCompetencias(const Atleta &a)const;
+    vector<Atleta> losMasParticipantes(const vector<Atleta> &as)const;
+    int cantidadMedallas(const Atleta &a)const;
+    vector <pair <Atleta, Categoria>> medallistasDeOro() const;
+    int oroPorPais(const Pais &p, const vector<Competencia> &cs) const;
+    Pais mejorPais(const unsigned int &d) const;
+
 
     friend class jjoo_tests_competencias_al_transcurrir_un_dia_Test;
 
