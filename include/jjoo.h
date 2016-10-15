@@ -21,6 +21,7 @@ private:
     int posMax(const vector<pair<Pais, vector<int> > > &m, const int n) const;
     void swap(vector<pair<Pais, vector<int> > > &m, const int n, const int k) const;
     void ordenarMedallero(vector<pair<Pais, vector<int> > > &m) const;
+    Competencia sacarPais(const Competencia &c, const Pais &p) const;
 
     friend class jjoo_tests_competencias_al_transcurrir_un_dia_Test;
 

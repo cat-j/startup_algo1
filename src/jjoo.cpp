@@ -89,7 +89,7 @@ void JJOO::swap(vector<pair<Pais, vector<int> > > &m, const int n, const int k) 
 }
 
 void JJOO::ordenarMedallero(vector<pair<Pais, vector<int> > > &m) const {
-    int actual = m.size()-1;
+    int actual = m.size();
     while (actual > 0) {
         int max = this->posMax(m,actual);
         this->swap(m,max,actual);
@@ -241,23 +241,50 @@ vector<pair<Pais, vector<int> > > JJOO::medallero() const {
     return res;
 }
 
+Competencia JJOO::sacarPais(const Competencia &c, const Pais &p) const {
+    vector <Atleta> atletas_mod;
+    vector <Atleta> ranking_mod;
+    vector <pair<Atleta,bool> > antidoping_mod;
+
+    int i = 0;
+
+    while ( i < c.participantes().size() ) {
+        if ( c.participantes()[i].nacionalidad() != p )
+            atletas_mod.push_back( c.participantes()[i] );
+        i++;
+    }
+
+    Competencia res = Competencia(c.categoria().first, c.categoria().second, atletas_mod);
+    if c.finalizada()
+
+                fijarse si la competencia está finalizada.
+                generar vector posiciones y vector control ( con cianumbers)
+                finalizar las no finalizadas.
+                Gracias.
+
+}
+
 int JJOO::boicotPorDisciplina(const Categoria &c, const Pais &p) {
     vector<vector<Competencia>> cron_mod;
     int res = 0;
     int i = 0;
 
     while ( i < _cronograma.size() ) {
-        vector<Competencia> comps_mod;
         int j = 0;
-        vector<Competencia> comps = _cronograma[i];
+        vector <Competencia> dia_actual = _cronograma[i];
 
-        while ( j < comps.size() ) {
+        while ( j < dia_actual.size() ) {
+            vector<Competencia> comps_mod;
 
+            if ( dia_actual[j].categoria() != c )
+                comps_mod.push_back( dia_actual[j] );
+            else
+                comps_mod.push_back( sacarPais( dia_actual[j], p ) );
             j++;
         }
+
         i++;
     }
-
     _cronograma = cron_mod;
     return res;
 }

@@ -328,7 +328,6 @@ TEST(jjoo_tests, hay_un_patron) {
     vector<pair<Pais, vector<int> > > medallero = {std::make_pair(paises[0], (std::vector<int>) {4, 0, 0}),
                                                    std::make_pair(paises[1], (std::vector<int>) {3, 0, 0}),
                                                    std::make_pair(paises[2], (std::vector<int>) {3, 0, 0})};
-
     ASSERT_TRUE(jo.medallero() == medallero);
 
     //Boicot a Argentina en el oro que gano en la cuarta fecha de los juegos
