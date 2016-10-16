@@ -1,75 +1,100 @@
-//vamos a tener que demostrar correctitud de competencias()
+/* durante la demostracion, asumiremos que JJ00::competencias(), Competencia::finalizada()
+ y Competencia::ranking() son correctas respecto de las especificaciones de los problemas
+competencias, finalizada y ranking respectivamente. por lo tanto usaremos los observadores
+de los tipos compuestos para referirnos a los valores de retorno de estas funciones
 
-//Pc: i == 0 && res == [] && |comps| > 0
-//Qc: res == [campeon(c) | c <- competenciasConOroEnPodio(j)]
-//I: 0 <= i <= |competencias| && (forall a in res) esCampeon(a)
-//B: i<|comps|
-//v: |comps|-i
-//c: 0
+tambien asumimos que l.size() == |l|
 
-//Pif: 
+TODO: DEMOSTRAR FINALIZADA, RANKING Y COMPETENCIAS */
 
-vector<Atleta> JJOO::campeones() const {
-    //estado E0
-    //vale algunaVezSeCompitio: |competenciasConOroEnPodio(j)| > 0 (por requiere)
-    //implica |competencias(j)| > 0 ( porque competenciasConOroEnPodio(j) cont competencias(j) -> |competencias(j)| >= |competenciasConOroEnPodio(j)| > 0)
-    vector<Atleta> res;
-    //estado E1
-    //vale res == [] && |competencias(j)| > 0
-    vector<Competencia> comps = competencias();
-    //estado E2
-    //vale res == res@E1 && comps == competencias()
-    //implica comps == competencias(j) (por especificacion de JJOO::competencias()) (DEMOSTRAR)
-    //implica |comps| > 0 (por implica anterior && estado E1)
+Atleta campeon(const Competencia &c) {
+	//estado E0;
+	res = c.ranking()[0];
+	//estado E1;
+	//vale res == c.ranking[0];
+	//implica res == ranking(c)[0]; (porque ranking() cumple la especificacion del problema ranking)
+	return res;
+}
+//demostramos que campeon es correcta con respecto a la especificacion del problema campeon
 
-    int i = 0;
+//DEMOSTRACION DE DAMECOMPSORO
 
-    //estado E3
-    //vale res == res@E2 && comps == comps@E2 && i == 0
-    //implica Pc: i == 0 && res == [] && |comps| > 0
-    //implica I: 0 <= i <= |comps| && (forall a in res) esCampeon(a) (porque si res es vacia el predicado es verdadero)
+vector <Competencia> dameCompsOro(const JJOO &j) {
+	//estado E0;
+	vector <Competencia> res;
+	//estado E1;
+	//vale res == [];
+	vector <Competencia> comps = j.competencias();
+	//estado E2;
+	//vale res == res@E1 && comps == j.competencias();
 
-    while (i<comps.size) {
-        //estado C0
-        //vale I && B
-        //variante v: |comps|-i
-        if (comps[i].finalizada() && comps[i].ranking().size()>0) {
-            res.push_back(comps[i].ranking()[0]);
-        }
-        i++;
-    }
+	unsigned int i = 0;
+	//estado E3;
+	//vale Pc: i == 0 && res == [];
+	//implica I: 0 <= i <= |comps| && res == [c | c <- comps[0..i), finalizada(c) && |ranking(c)| > 0]; (porque si i==0 -> comps[0..i) es una lista vacia)
 
-    return res;
+	while (i<comps.size()) {
+		//estado C0;
+		//variante v: |comps|-i;
+		//vale I && B: 0 <= i <= comps.size() && res == [c | c <- comps[0..i), finalizada(c) && |ranking(c)| > 0] && i < |comps|;
+		//implica Pif: res == [c | c <- comps[0..i), finalizada(c) && |ranking(c)| > 0]
+		if (comps[i].finalizada() && |comps[i].ranking()| > 0)
+			//estado ifT0;
+			//vale finalizada(comps[i]) && |ranking(comps[i])| > 0; (porque finalizada y ranking cumplen con la especificacion)
+			//vale i == i@C0 && Pif: res == [c | c <- comps[0..i), finalizada(c) && |ranking(c)| > 0];
+			//implica res == [c | c <- comps[0..i@C0), finalizada(c) && |ranking(c)| > 0]
+			res.push_back(comps[i]);
+			//estado ifT1;
+			//vale finalizada(comps[i@ifT0]) && |ranking(comps[i@ifT0])| > 0;
+			//vale i == i@ifT0 && res == res@ifT0 ++ comps[i];
+			//implica res == res@ifT0 ++ comps[i@ifT0];
+			//implica res == res@C0 ++ comps[i@C0];
+		    //implica res == [c | c <- comps[0..i@C0], finalizada(c) && |ranking(c)| > 0]; (porque agregamos comps[i@ifT0], que esta finalizada y tiene ranking no vacio)
+		//estado C1;
+		//vale i == i@C0 && res == [c | c <- comps[0..i@C0], finalizada(c) && |ranking(c)| > 0];
+		//vale Qif: res == [c | c <- comps[0..i@C0], finalizada(c) && |ranking(c)| > 0];
+		i++;
+		//estado C2;
+		//vale i == i@C1+1 && res == res@C1;
+		//implica i == i@C0+1 res == [c | c <- comps[0..i@C0+1), finalizada(c) && |ranking(c)| > 0];
+		//implica 0 <= i <= |comps| && res == [c | c <- comps[0..i@C2), finalizada(c) && |ranking(c)| > 0]; (porque i@C2 == i@C0+1 y 0 <= i@C0 < |comps|)
+		//implica I;
+		//hacer el coso de la funcion variante
+	}
+	//estado E4;
+	//vale I && ¬B: 0 <= i <= |comps| && res == [c | c <- comps[0..i), finalizada(c) && |ranking(c)| > 0] && i >= |comps|
+	//implica i == |comps|; (i <= |comps| && i >= |comps| ssi i == |comps|)
+	//implica res == [c | c <- comps[0..|comps|), finalizada(c) && |ranking(c)| > 0];
+	//implica res == [c | c <- comps, finalizada(c) && |ranking(c)| > 0];
+	//implica res == [c | c <- competencias(j), finalizada(c) && |ranking(c)| > 0]; (comps == j.competencias() y especificacion de JJOO::competencias())
+	//implica res == competenciasConOroEnPodio(j); (definicion de competenciasConOroEnPodio(j))
+
+	return res;
 }
 
-//TENEMOS QUE DEMOSTRAR QUE LOSCAMPEONES FUNCIONA Y DA EL CAMPEON DE CADA COMPETENCIA CON ORO EN PODIO
+Atleta atletaProdigio(const JJOO &j) {
+	//estado E0;
+	//vale algunaVezSeCompitio: |competenciasConOroEnPodio(j)| > 0; (por requiere)
+	vector <Competencia> compsOro = dameCompsOro(j);
+	//estado E1;
+	//vale algunaVezSeCompitio && compsOro == dameCompsOro(j); (por estado anterior)
+	//implica compsOro == competenciasConOroEnPodio(j); (por especificacion de dameCompsOro)
+	Atleta res = campeon(compsOro[0]);
+	//estado E2;
+	//vale algunaVezSeCompitio && compsOro == compsOro@E1 && res == campeon(compsOro[0]);
+	int mayorAnio = res.anioNacimiento();
+	//estado E3;
+	//vale algunaVezSeCompitio && compsOro == compsOro@E2 && res == res@E1 && mayorAnio == res@E1.anioNacimiento();
 
-//Pc: i == 0 && res == losCampeones[0] && mayorAnio == losCampeones[0].anioNacimiento
-//Qc: (forall a in losCampeones) res.anioNacimiento >= a.anioNacimiento
-//I: 0 <= i <= |losCampeones()| && (forall a in losCampeones[0..i)) res.anioNacimiento >= a.anioNacimiento
-//B: i<|losCampeones()|
-//v: |losCampeones()|-i
-//c: 0
+	unsigned int i = 0;
 
-//Pif: res en losCampeones[0..i) && mayorAnio == res.anioNacimiento
-//Qif: (losCampeones[i].anioNacimiento > pre(mayorAnio) && res == losCampeones[i] && mayorAnio == losCampeones[i].anioNacimiento) || (losCampeones[i].anioNacimiento <= pre(mayorAnio) && res == pre(res) && mayorAnio == pre(mayorAnio))
-//en vez de pre deberia decir en que estado (lo vemos mas adelante)
+	while (i<compsOro.size()) {
+		if (campeon(compsOro[i]).anioNacimiento() > mayorAnio) {
+			res = campeon(compsOro[i]);
+			mayorAnio = campeon(compsOro[i]).anioNacimiento;
+		}
+		i++;
+	}
 
-Atleta JJOO::atletaProdigio() const {
-    <vector> Atleta losCampeones = campeones();
-    Atleta res = losCampeones[0];
-    int mayorAnio = losCampeones[0].anioNacimiento();
-
-    int i = 0;
-
-    while (i<losCampeones.size()) {
-        if (losCampeones[i].anioNacimiento() > mayorAnio) {
-            res = losCampeones[i];
-            mayorAnio = losCampeones[i].anioNacimiento();
-        }
-
-        i++;
-    }
-
-    return res;
+	return res;
 }
