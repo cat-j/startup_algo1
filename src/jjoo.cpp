@@ -590,6 +590,13 @@ void JJOO::transcurrirDia() {
 //funcion a demostrar
 //TENEMOS QUE SACAR ESTO DE ESTE ARCHIVO CUANDO TERMINEMOS
 
+//Pc: i == 0 && res == []
+//Qc: res == [campeon(c) | c <- competenciasConOroEnPodio(j)]
+//I: 0 <= i <= |competencias| && (forall a in res) esCampeon(a)
+//B: i<|competencias|
+//v: |competencias|-i
+//c: 0
+
 vector<Atleta> JJOO::campeones() const {
     vector<Atleta> res;
     vector<Competencia> comps = competencias();
@@ -605,6 +612,19 @@ vector<Atleta> JJOO::campeones() const {
 
     return res;
 }
+
+//TENEMOS QUE DEMOSTRAR QUE LOSCAMPEONES FUNCIONA Y DA EL CAMPEON DE CADA COMPETENCIA CON ORO EN PODIO
+
+//Pc: i == 0 && res == losCampeones[0] && mayorAnio == losCampeones[0].anioNacimiento
+//Qc: (forall a in losCampeones) res.anioNacimiento >= a.anioNacimiento
+//I: 0 <= i <= |losCampeones()| && (forall a in losCampeones[0..i)) res.anioNacimiento >= a.anioNacimiento
+//B: i<|losCampeones()|
+//v: |losCampeones()|-i
+//c: 0
+
+//Pif: res en losCampeones[0..i) && mayorAnio == res.anioNacimiento
+//Qif: (losCampeones[i].anioNacimiento > pre(mayorAnio) && res == losCampeones[i] && mayorAnio == losCampeones[i].anioNacimiento) || (losCampeones[i].anioNacimiento <= pre(mayorAnio) && res == pre(res) && mayorAnio == pre(mayorAnio))
+//en vez de pre deberia decir en que estado (lo vemos mas adelante)
 
 Atleta JJOO::atletaProdigio() const {
     <vector> Atleta losCampeones = campeones();
