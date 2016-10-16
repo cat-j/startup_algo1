@@ -587,6 +587,44 @@ void JJOO::transcurrirDia() {
     return;
 }
 
+//funcion a demostrar
+//TENEMOS QUE SACAR ESTO DE ESTE ARCHIVO CUANDO TERMINEMOS
+
+vector<Atleta> JJOO::campeones() const {
+    vector<Atleta> res;
+    vector<Competencia> comps = competencias();
+
+    int i = 0;
+
+    while (i<comps.size) {
+        if (comps[i].finalizada() && comps[i].ranking().size()>0) {
+            res.push_back(comps[i].ranking()[0]);
+        }
+        i++;
+    }
+
+    return res;
+}
+
+Atleta JJOO::atletaProdigio() const {
+    <vector> Atleta losCampeones = campeones();
+    Atleta res = losCampeones[0];
+    int mayorAnio = losCampeones[0].anioNacimiento();
+
+    int i = 0;
+
+    while (i<losCampeones.size()) {
+        if (losCampeones[i].anioNacimiento() > mayorAnio) {
+            res = losCampeones[i];
+            mayorAnio = losCampeones[i].anioNacimiento();
+        }
+
+        i++;
+    }
+
+    return res;
+}
+
 void JJOO::mostrar(std::ostream &os) const {
 }
 
