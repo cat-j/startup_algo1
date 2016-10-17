@@ -535,10 +535,10 @@ Pais JJOO::mejorPais(const unsigned int &d) const {
     unsigned int i = 0;
 
     while (i < paises().size()) {
-        if (medallasDelGanador < oroPorPais(paises()[i],cronograma(d))) {
+        if (medallasDelGanador < oroPorPais(paises()[i], cronograma(d))) {
             medallasDelGanador = oroPorPais(paises()[i], cronograma(d));
             ganadorDelDia = paises()[i];
-        } else if (medallasDelGanador == oroPorPais(paises()[i],cronograma(d)) && paises()[i]<ganadorDelDia) {
+        } else if (medallasDelGanador == oroPorPais(paises()[i], cronograma(d)) && paises()[i] < ganadorDelDia) {
             ganadorDelDia = paises()[i];
         }
         i++;
@@ -586,131 +586,304 @@ bool JJOO::uyOrdenadoAsiHayUnPatron() const {
     return hayUnPatron;
 }
 
+bool JJOO::ganoMedalla(const Pais &p, const int &d) const {
+    bool res = false;
+
+    unsigned int i = 0;
+
+    while (i < cronograma(d).size()) {
+        Competencia comp = cronograma(d)[i];
+        if (comp.finalizada() && comp.ranking().size() > 0 && comp.ranking()[0].nacionalidad() == p) {
+            res = true;
+        }
+        if (comp.finalizada() && comp.ranking().size() > 1 && comp.ranking()[1].nacionalidad() == p) {
+            res = true;
+        }
+        if (comp.finalizada() && comp.ranking().size() > 2 && comp.ranking()[2].nacionalidad() == p) {
+            res = true;
+        }
+        i++;
+    }
+
+    return res;
+}
+
+int JJOO::maxDif(const vector<int> &ds) const {
+    int res = 0;
+    unsigned int i = 1;
+
+    while (i < ds.size()) {
+        if ((ds[i] - ds[i - 1]) > res) {
+            res = (ds[i] - ds[i - 1]);
+        }
+        i++;
+    }
+    return res;
+}
+
+int JJOO::masDiasSinMedallas(const Pais &p) const {
+    vector<int> diasEnLosQueGanoMedalla;
+    diasEnLosQueGanoMedalla.push_back(0);
+
+    unsigned int i = 1;
+
+    while (i < jornadaActual()) {
+        if (ganoMedalla(p, i)) {
+            diasEnLosQueGanoMedalla.push_back(i);
+        }
+    }
+
+    diasEnLosQueGanoMedalla.push_back(jornadaActual());
+
+    int res = maxDif(diasEnLosQueGanoMedalla);
+
+    return res;
+}
+
 vector<Pais> JJOO::sequiaOlimpica() const {
     vector<Pais> ret;
+
+    int maxDias;
+    unsigned int i = 0;
+
+    while (i < paises().size()) {
+        if (masDiasSinMedallas(paises()[i]) > maxDias) {
+            maxDias = masDiasSinMedallas(paises()[i]);
+        }
+        i++;
+    }
+
+    i = 0;
+
+    while (i < paises().size()) {
+        if (masDiasSinMedallas(paises()[i]) == maxDias) {
+            ret.push_back(paises()[i]);
+        }
+        i++;
+    }
+
+
     return ret;
 }
 
+int JJOO::maximaCapacidad(const vector<Atleta> &as,const int &a, const Deporte &d) const {
+    int max = 0;
+    int b = a;
+    int posMax;
+
+    while (b < as.size()) {
+        if (as[b].capacidad(d) > max) {
+            max = as[b].capacidad(d);
+            posMax = b;
+        }
+        b++;
+    }
+    return posMax;
+}
+
+vector<Atleta> JJOO::swap2(const vector<Atleta> &as, const int &m, const int &a) const {
+
+    vector<Atleta> as2 = as;
+
+    Atleta pivot = as2[m];
+    as2[m] = as2[a];
+    as2[a] = pivot;
+    return as2;
+}
+
+vector<int> JJOO::generarRanking(const Competencia &c) const {
+    Deporte d = c.categoria().first;
+    vector<Atleta> ranking = c.participantes();
+    vector<int> rankingDeCias;
+    unsigned int i = 0;
+
+    int actual = 0;
+
+    while (actual < ranking.size()) {
+        int max = maximaCapacidad(ranking, actual, d);
+//        ranking = swap2(ranking, max, actual);
+        actual++;
+    }
+
+    unsigned int j = 0;
+    while (j < ranking.size()) {
+        rankingDeCias.push_back(ranking[i].ciaNumber());
+        j++;
+    }
+
+
+    return rankingDeCias;
+}
+
+vector<Competencia> JJOO::finalizarDia(const vector<Competencia> &cs) const{
+    vector<Competencia> cs2 = cs;
+    vector<Competencia> compsMod;
+
+    unsigned int j = 0;
+//Iteramos sobre todas las competencias del dia. Nos fijamos si no estan finalizadas y las finalizamos
+//Creamos un vector de competencias modificadas, donde estaran  todas finalizadas y lo devolvemos
+    while (j < cs2.size()) {
+        if (cs2[j].finalizada()) {
+            compsMod.push_back(cs2[j]);
+        }
+        else {
+//            Generamos el ranking
+            vector<int> posMod = generarRanking(cs2[j]);
+
+//            Generamos el antidoping y sus resultados
+            unsigned int k = 0;
+
+            vector<pair<int, bool>> atletaControl;
+            while (k < cs2[j].lesTocoControlAntiDoping().size()) {
+                atletaControl.push_back(make_pair(cs2[j].lesTocoControlAntiDoping()[k].ciaNumber(),
+                                                  cs2[j].leDioPositivo(cs2[j].lesTocoControlAntiDoping()[k])));
+                k++;
+
+            }
+//            Finalizamos la competencia pasandole los dos parametros anteriores con el metodo publico.
+            cs2[j].finalizar(posMod, atletaControl);
+            compsMod.push_back(cs2[j]);
+        }
+        j++;
+    }
+    return compsMod;
+}
+
 void JJOO::transcurrirDia() {
+
+    vector<vector<Competencia>> cronMod;
+    unsigned int i = 1;
+
+    while (i <= cantDias()) {
+        if (i != jornadaActual()) {
+            cronMod.push_back(cronograma(i));
+        }
+        else {
+            cronMod.push_back(finalizarDia(cronograma(i)));
+        }
+        i++;
+    }
+
+
     return;
 }
 
 void JJOO::mostrar(std::ostream &os) const {
-	guardar(os);
-	os<<std::endl;
+    guardar(os);
+    os << std::endl;
 }
 
 void JJOO::guardar(std::ostream &os) const {
-	os<<"J "<<_anio
-      <<" "<<_jornadaActual
-      <<"[";
+    os << "J " << _anio
+       << " " << _jornadaActual
+       << "[";
 
-	unsigned int i = 0;
+    unsigned int i = 0;
 
-	while(i < _atletas.size()){
+    while (i < _atletas.size()) {
 
-		os<<"("<<_atletas[i]<<")";
+        os << "(" << _atletas[i] << ")";
 
-		i++;
+        i++;
 
-		if(i < _atletas.size()){
-			os<<", ";
-		}
-	}
-	os<<"]";
+        if (i < _atletas.size()) {
+            os << ", ";
+        }
+    }
+    os << "]";
 
-	unsigned int j;
-	i = 0;
+    unsigned int j;
+    i = 0;
 
-	os<<"[";
-	while(i < _cronograma.size()){
+    os << "[";
+    while (i < _cronograma.size()) {
 
-		j = 0;
+        j = 0;
 
-		os<<"[";
-		while(j < _cronograma[i].size()){
+        os << "[";
+        while (j < _cronograma[i].size()) {
 
-			os<<"("<<_cronograma[i][j]<<")";
+            os << "(" << _cronograma[i][j] << ")";
 
-			j++;
+            j++;
 
-			if(j < _cronograma[i].size()){
-				os<<", ";
-			}
-		}
-		os<<"]";
+            if (j < _cronograma[i].size()) {
+                os << ", ";
+            }
+        }
+        os << "]";
 
-		i++;
+        i++;
 
-		if(i < _cronograma.size()){
-			os<<", ";
-		}
-	}
-	os<<"]";
+        if (i < _cronograma.size()) {
+            os << ", ";
+        }
+    }
+    os << "]";
 
 }
 
 void JJOO::cargar(std::istream &is) {
-	string buff;
-	
-	is>>buff>>_anio>>_jornadaActual;
+    string buff;
 
-	_atletas.clear();
+    is >> buff >> _anio >> _jornadaActual;
 
-    getline(is,buff,'[');
-	while(is.peek()!=']'){
+    _atletas.clear();
 
-		Atleta a("a",Genero::Masculino,1,"a",2); //Atleta con basura		
+    getline(is, buff, '[');
+    while (is.peek() != ']') {
 
-	    getline(is,buff,'(');
+        Atleta a("a", Genero::Masculino, 1, "a", 2); //Atleta con basura
 
-		a.cargar(is);
+        getline(is, buff, '(');
 
-		getline(is,buff,')');
+        a.cargar(is);
 
-		_atletas.push_back(a);
-	}
+        getline(is, buff, ')');
+
+        _atletas.push_back(a);
+    }
 
 
-	_cronograma.clear();
-    getline(is,buff,'[');
-	while(is.peek()!=']'){
+    _cronograma.clear();
+    getline(is, buff, '[');
+    while (is.peek() != ']') {
 
-		vector<Competencia> vc;
+        vector<Competencia> vc;
 
-		getline(is,buff,'[');
-		while(is.peek()!=']'){	
+        getline(is, buff, '[');
+        while (is.peek() != ']') {
 
-		    Competencia c = Competencia(deportes[5], Genero::Femenino, std::vector<Atleta>());//competencia con basura	
+            Competencia c = Competencia(deportes[5], Genero::Femenino, std::vector<Atleta>());//competencia con basura
 
-			getline(is,buff,'(');
+            getline(is, buff, '(');
 
-			c.cargar(is);
+            c.cargar(is);
 
-			getline(is,buff,')');
+            getline(is, buff, ')');
 
-			vc.push_back(c);
+            vc.push_back(c);
 
-		}
+        }
 
-		is.get();
+        is.get();
 
-		_cronograma.push_back(vc);
+        _cronograma.push_back(vc);
 
-		if(is.peek()!=']'){
-			vc.clear();
-		}
-	}
-	
+        if (is.peek() != ']') {
+            vc.clear();
+        }
+    }
+
 }
 
 std::ostream &operator<<(std::ostream &os, const JJOO &j) {
-	j.guardar(os);
+    j.guardar(os);
     return os;
 }
 
 std::istream &operator>>(std::istream &is, JJOO &j) {
-	j.cargar(is);
+    j.cargar(is);
     return is;
 }
 

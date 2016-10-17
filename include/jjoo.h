@@ -29,7 +29,14 @@ private:
     vector <pair <Atleta, Categoria>> medallistasDeOro() const;
     int oroPorPais(const Pais &p, const vector<Competencia> &cs) const;
     Pais mejorPais(const unsigned int &d) const;
-
+    int masDiasSinMedallas (const Pais &p) const;
+    bool ganoMedalla (const Pais &p, const int &d) const;
+    int maxDif (const vector<int> &ds) const;
+    vector<Competencia> finalizarDia (const vector<Competencia> &cs) const;
+    Competencia finalizar (const Competencia &c) const;
+    vector <int> generarRanking(const Competencia &c) const;
+    int maximaCapacidad(const vector<Atleta> &as,const int &a,const Deporte &d) const;
+    vector <Atleta> swap2 (const vector<Atleta> &as, const int &m, const int &a) const;
 
     friend class jjoo_tests_competencias_al_transcurrir_un_dia_Test;
 
