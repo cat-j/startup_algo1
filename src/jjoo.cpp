@@ -3,6 +3,14 @@
 #include <utility>
 #include <algorithm>
 
+#include "../tests/auxiliares_tests.h" /*traido para poder instanciar una compe-
+                                        *tencia basura en el metodo de carga sin
+                                        *tener que crear otro constructor para 
+                                        *la clase de competencia, la cual pide
+                                        *un arreglo de deportes en el construc-
+                                        *tor.
+                                        */
+
 
 JJOO::JJOO(const int &a, const vector<Atleta> &as, const vector<vector<Competencia> > &cs) {
 
@@ -70,7 +78,7 @@ bool JJOO::masMedallas(const Pais &p1, const Pais &p2) const {
 }
 
 int JJOO::posMax(const vector<pair<Pais, vector<int> > > &m, const int a) const {
-    unsigned int i = 0;
+    int i = 0;
     int res = 0;
 
     while (i < a) {
@@ -106,7 +114,7 @@ vector<Competencia> JJOO::competencias() const {
     unsigned int i = 0;
 
     while (i < _cronograma.size()) {
-        int j = 0;
+        unsigned int j = 0;
         while (j < _cronograma[i].size()) {
             vectorcomp.push_back(_cronograma[i][j]);
             j++;
@@ -542,7 +550,7 @@ Pais JJOO::mejorPais(const unsigned int &d) const {
 bool JJOO::uyOrdenadoAsiHayUnPatron() const {
 
     vector<Pais> mp;
-    unsigned int j = 1;
+    int j = 1;
 
     while (j < jornadaActual() + 1) {
         mp.push_back(mejorPais(j));
@@ -588,19 +596,121 @@ void JJOO::transcurrirDia() {
 }
 
 void JJOO::mostrar(std::ostream &os) const {
+	guardar(os);
+	os<<std::endl;
 }
 
 void JJOO::guardar(std::ostream &os) const {
+	os<<"J "<<_anio
+      <<" "<<_jornadaActual
+      <<"[";
+
+	unsigned int i = 0;
+
+	while(i < _atletas.size()){
+
+		os<<"("<<_atletas[i]<<")";
+
+		i++;
+
+		if(i < _atletas.size()){
+			os<<", ";
+		}
+	}
+	os<<"]";
+
+	unsigned int j;
+	i = 0;
+
+	os<<"[";
+	while(i < _cronograma.size()){
+
+		j = 0;
+
+		os<<"[";
+		while(j < _cronograma[i].size()){
+
+			os<<"("<<_cronograma[i][j]<<")";
+
+			j++;
+
+			if(j < _cronograma[i].size()){
+				os<<", ";
+			}
+		}
+		os<<"]";
+
+		i++;
+
+		if(i < _cronograma.size()){
+			os<<", ";
+		}
+	}
+	os<<"]";
+
 }
 
 void JJOO::cargar(std::istream &is) {
+	string buff;
+	
+	is>>buff>>_anio>>_jornadaActual;
+
+	_atletas.clear();
+
+    getline(is,buff,'[');
+	while(is.peek()!=']'){
+
+		Atleta a("a",Genero::Masculino,1,"a",2); //Atleta con basura		
+
+	    getline(is,buff,'(');
+
+		a.cargar(is);
+
+		getline(is,buff,')');
+
+		_atletas.push_back(a);
+	}
+
+
+	_cronograma.clear();
+    getline(is,buff,'[');
+	while(is.peek()!=']'){
+
+		vector<Competencia> vc;
+
+		getline(is,buff,'[');
+		while(is.peek()!=']'){	
+
+		    Competencia c = Competencia(deportes[5], Genero::Femenino, std::vector<Atleta>());//competencia con basura	
+
+			getline(is,buff,'(');
+
+			c.cargar(is);
+
+			getline(is,buff,')');
+
+			vc.push_back(c);
+
+		}
+
+		is.get();
+
+		_cronograma.push_back(vc);
+
+		if(is.peek()!=']'){
+			vc.clear();
+		}
+	}
+	
 }
 
 std::ostream &operator<<(std::ostream &os, const JJOO &j) {
+	j.guardar(os);
     return os;
 }
 
 std::istream &operator>>(std::istream &is, JJOO &j) {
+	j.cargar(is);
     return is;
 }
 

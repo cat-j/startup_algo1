@@ -25,7 +25,7 @@ vector<Atleta> Competencia::ranking() const {
 
 vector<Atleta> Competencia::lesTocoControlAntiDoping() const {
     vector<Atleta> res;
-    int i = 0;
+    unsigned int i = 0;
 
     while ( i < _lesTocoControlAntiDoping.size() ) {
         res.push_back( _lesTocoControlAntiDoping[i].first );
@@ -37,7 +37,7 @@ vector<Atleta> Competencia::lesTocoControlAntiDoping() const {
 
 bool Competencia::leDioPositivo(const Atleta &a) const {
     bool res = false;
-    int i = 0;
+    unsigned int i = 0;
 
     while ( i < _lesTocoControlAntiDoping.size() ) {
         if ( _lesTocoControlAntiDoping[i].first == a )
@@ -49,7 +49,7 @@ bool Competencia::leDioPositivo(const Atleta &a) const {
 }
 
 bool Competencia::perteneceAtleta(const Atleta &a) const {
-    int i = 0;
+    unsigned int i = 0;
 
     while ( i < _participantes.size() && !(_participantes[i] == a) ) {
         i++;
@@ -59,7 +59,7 @@ bool Competencia::perteneceAtleta(const Atleta &a) const {
 }
 
 bool Competencia::perteneceAtletaControlado(const pair<Atleta, bool> &a) const {
-    int i = 0;
+    unsigned int i = 0;
 
     while ( i < _lesTocoControlAntiDoping.size() && !(_lesTocoControlAntiDoping[i] == a) ) {
         i++;
@@ -69,7 +69,7 @@ bool Competencia::perteneceAtletaControlado(const pair<Atleta, bool> &a) const {
 }
 
 bool Competencia::mismosAtletas(const Competencia &c) const {
-    int i = 0;
+    unsigned int i = 0;
     bool res = true;
 
     if ( _participantes.size() != c._participantes.size() ) {
@@ -86,7 +86,7 @@ bool Competencia::mismosAtletas(const Competencia &c) const {
 }
 
 bool Competencia::mismoControl(const Competencia &c) const {
-    int i = 0;
+    unsigned int i = 0;
     bool res = true;
 
     if ( _lesTocoControlAntiDoping.size() != c._lesTocoControlAntiDoping.size() ) {
@@ -105,10 +105,10 @@ bool Competencia::mismoControl(const Competencia &c) const {
 void Competencia::finalizar(const vector<int> &posiciones, const vector<pair<int, bool> > &control) {
     _finalizada = true;
 
-    int i = 0;
+    unsigned int i = 0;
 
     while ( i < posiciones.size() ) {
-        int j = 0;
+        unsigned int j = 0;
         while ( j < _participantes.size() ) {
             if ( _participantes[j].ciaNumber() == posiciones[i] )
                 _ranking.push_back( _participantes[j] );
@@ -120,7 +120,7 @@ void Competencia::finalizar(const vector<int> &posiciones, const vector<pair<int
     i = 0;
 
     while ( i < control.size() ) {
-        int j = 0;
+        unsigned int j = 0;
         while ( j < _participantes.size() ) {
             if ( _participantes[j].ciaNumber() == control[i].first ) {
                 pair <Atleta, bool> controlado = make_pair(_participantes[j],control[i].second);
@@ -134,7 +134,7 @@ void Competencia::finalizar(const vector<int> &posiciones, const vector<pair<int
 
 void Competencia::linfordChristie(const int &n) {
     vector<Atleta> part_mod;
-    int i = 0;
+    unsigned int i = 0;
 
     while ( i < _participantes.size() ) {
         if ( _participantes[i].ciaNumber() != n )
@@ -148,7 +148,7 @@ void Competencia::linfordChristie(const int &n) {
 bool Competencia::gananLosMasCapaces() const {
     bool res = true;
     Deporte dep = _categoria.first;
-    int i = 0;
+    unsigned int i = 0;
 
     while ( i < _ranking.size()-1 ) {
         if ( _ranking[i].capacidad(dep) < _ranking[i+1].capacidad(dep) )
@@ -161,7 +161,7 @@ bool Competencia::gananLosMasCapaces() const {
 
 void Competencia::sancionarTramposos() {
     vector<Atleta> rank_mod;
-    int i=0;
+    unsigned int i=0;
 
     while (i<_ranking.size()) {
         if (!this->leDioPositivo(_ranking[i]))
@@ -177,20 +177,170 @@ void Competencia::sancionarTramposos() {
     _ranking = rank_mod;
 }
 
+Atleta Competencia::getAtletaCia(int n){
+
+	unsigned int i = 0;
+
+	while(_participantes[i].ciaNumber() != n){
+		++i;
+	}
+
+	return _participantes[i];
+
+}
+
 void Competencia::mostrar(std::ostream &os) const {
+	guardar(os);
+	os<<std::endl;
 }
 
 void Competencia::guardar(std::ostream &os) const {
+	os<<"C "
+      <<"(|"<<_categoria.first<<"|, "
+      <<"|"<<_categoria.second<<"|) "
+      <<" |"<<(_finalizada?"True":"False")<<"| [";
+
+    unsigned int i = 0;
+
+	while(i < _participantes.size()){
+
+		os<<"("<<_participantes[i]<<")";
+
+		i++;
+		if(i < _participantes.size()){
+			os<<",";
+		}
+	}
+	os<<"]";
+
+	if(_finalizada){
+
+		i = 0;
+
+		os<<"[";
+		while(i < _ranking.size()){
+
+			os<<_ranking[i].ciaNumber();
+
+			i++;
+			if(i < _ranking.size()){
+				os<<", ";
+			}
+		}
+		os<<"]";
+
+		i = 0;
+
+		os<<"[";
+		while(i < _lesTocoControlAntiDoping.size()){
+
+			os<<"("
+              <<_lesTocoControlAntiDoping[i].first.ciaNumber()<<", "
+              <<"|"<<(_lesTocoControlAntiDoping[i].second?"True":"False")
+              <<"|)";
+
+			i++;
+			if(i < _lesTocoControlAntiDoping.size()){
+				os<<", ";
+			}
+		}
+		os<<"]";
+	}
 }
 
 void Competencia::cargar(std::istream &is) {
+	string buff;
+
+	is>>buff; // Leo la C
+
+	getline(is,buff,'(');
+	getline(is,buff,'|');
+
+	getline(is,_categoria.first,'|');
+
+	getline(is,buff,',');
+	getline(is,buff,'|');
+
+	getline(is,buff,'|');
+	_categoria.second = str2Genero(buff);
+
+	getline(is,buff,')');
+	getline(is,buff,'|');
+	getline(is,buff,'|');
+
+	_finalizada = buff == "True";
+
+	getline(is,buff,'[');
+
+	_participantes.clear();
+
+	while(is.peek() != ']'){
+
+		Atleta a("a",Genero::Masculino,1,"a",2); //Atleta con basura
+		
+		getline(is,buff,'(');
+
+		a.cargar(is);
+
+		_participantes.push_back(a);
+
+		getline(is,buff,')');
+
+	}
+
+	_ranking.clear();
+	_lesTocoControlAntiDoping.clear();
+
+	if(_finalizada){
+
+		int ciaN;
+		bool seguir = true;
+
+		getline(is,buff,'[');
+		while(seguir){
+
+			is>>buff;
+
+			seguir = buff.back()!=']';
+
+			buff.back()=' ';
+
+			ciaN = atoi(buff.c_str());
+
+			_ranking.push_back(getAtletaCia(ciaN));
+		}
+
+		getline(is,buff,'[');
+		while(is.peek() != ']'){
+
+			bool resultado;
+		
+			getline(is,buff,'(');
+			getline(is,buff,',');
+
+			ciaN = atoi(buff.c_str());
+
+			getline(is,buff,'|');
+			getline(is,buff,'|');
+
+			resultado = buff == "True";
+
+			_lesTocoControlAntiDoping.push_back(make_pair( getAtletaCia(ciaN) , resultado));
+
+			getline(is,buff,')');
+		}
+		
+	}
+	
 }
 
 std::ostream &operator<<(std::ostream &os, const Competencia &c) {
+	c.guardar(os);
     return os;
 }
 
 std::istream &operator>>(std::istream &is, Competencia &c) {
+	c.cargar(is);
     return is;
 }
 

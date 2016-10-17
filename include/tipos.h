@@ -17,5 +17,6 @@ enum Genero {
 typedef pair<Deporte, Genero> Categoria;
 
 std::ostream &operator<<(std::ostream &os, const Genero &g);
+Genero str2Genero(const string &s);
 
 #endif /*__TIPOS__*/

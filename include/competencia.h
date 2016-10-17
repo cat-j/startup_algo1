@@ -18,6 +18,8 @@ private:
     bool mismosAtletas(const Competencia &c) const;
     bool mismoControl(const Competencia &c) const;
 
+	Atleta getAtletaCia(int n);
+
 public:
     Competencia(const Deporte &d, const Genero &g, const vector<Atleta> &as);
 

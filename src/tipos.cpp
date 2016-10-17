@@ -9,9 +9,9 @@ ostream &operator<<(ostream &os, const Genero &g) {
     return os;
 }
 
-istream &operator>>(istream &is, Genero &g) {
-    string s;
-    is >> s;
+Genero str2Genero(const string &s){
+	Genero g;
+
     if (s == "Femenino") {
         g = Femenino;
     } else if (s == "Masculino") {
@@ -19,5 +19,19 @@ istream &operator>>(istream &is, Genero &g) {
     } else {
         assert(false);
     }
-    return is;
+
+	return g;
 }
+
+istream &operator>>(istream &is, Genero &g) {
+    string s;
+
+    is >> s;
+
+    g = str2Genero(s);
+
+	return is;
+}
+
+
+
