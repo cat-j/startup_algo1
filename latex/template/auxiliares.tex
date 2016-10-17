@@ -1,0 +1,12 @@
+\aux{capacidades}{as: [Atleta], d: Deporte}{[\ent]}{\comp{capacidad(a, d)}{a \selec as}}
+\aux{deporte}{c: Competencia}{Deporte}{prm(categoria(c))}
+\aux{laCompetenciaSeMantiene}{j: JJOO, d: \ent, c: Competencia}{\bool}{\\(\exists x \selec cronograma(j, d)) categoria(x)==categoria(c) \land mismos(participantes(x), participantes(c)) \\ \land finalizada(x)\Leftrightarrow finalizada(c) \land finalizada(x) \Rightarrow (ranking(x)==ranking(c) \land mismosControlados(x, c)}
+\aux{medallistasOro}{j: JJOO}{[Atleta]}{\comp{ranking(c)_0}{d \selec [1.. jornadaActual(j)], c \selec cronograma(j, d), \\ finalizada(c) \land \longitud{ranking(c)}\geq 1}}
+\aux{medallistasPlata}{j: JJOO}{[Atleta]}{\comp{ranking(c)_1}{d \selec [1.. jornadaActual(j)], c \selec cronograma(j, d), \\ finalizada(c) \land \longitud{ranking(c)}\geq 2}}
+\aux{medallistasBronce}{j: JJOO}{[Atleta]}{\comp{ranking(c)_2}{d \selec [1.. jornadaActual(j)], c \selec cronograma(j, d), \\ finalizada(c) \land \longitud{ranking(c)}\geq 3}}
+\aux{minimo}{l: [\ent]}{\ent}{\comp{x}{x\selec l, (\forall y \selec l) x \leq y}_0}
+\aux{mismosControlados}{$c_1$, $c_2$: Competencia}{\bool}{\\mismos(lesTocoControlAntiDoping(c_1), lesTocoControlAntiDoping(c_2)) \land \\ (\forall p \selec lesTocoControlAntiDoping(c_1)) leDioPositivo(c_1, p)\Leftrightarrow leDioPositivo(c_2, p)}
+\aux{nacionalidades}{as: [Atleta]}{[Pais]}{\comp{nacionalidad(a)}{a \selec as}}
+\aux{primeros}{l: [(T,S)]}{[T]}{\comp{prm(x)}{x \selec l}}
+\aux{reverso}{l: [T]}{[T]}{\comp{l_{\longitud{x}-i-1}}{i \selec [0.. \longitud{l})}}
+\aux{sacarRepetidos}{l: [T]}{[T]}{\comp{l_i}{i \selec [0.. \longitud{l}), l_i \notin l_{[0..i)}}}

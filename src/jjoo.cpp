@@ -102,18 +102,18 @@ void JJOO::ordenarMedallero(vector<pair<Pais, vector<int> > > &m) const {
 
 vector<Competencia> JJOO::competencias() const {
 
-    vector<Competencia> vectorcomp;
+    vector<Competencia> res;
     unsigned int i = 0;
 
     while (i < _cronograma.size()) {
         int j = 0;
         while (j < _cronograma[i].size()) {
-            vectorcomp.push_back(_cronograma[i][j]);
+            res.push_back(_cronograma[i][j]);
             j++;
         }
         i++;
     }
-    return vectorcomp;
+    return res;
 }
 
 int JJOO::cantidadMedallasOro(const Pais &p) const {
@@ -175,18 +175,17 @@ int JJOO::cantidadMedallasBronce(const Pais &p) const {
 
 vector<Competencia> JJOO::competenciasFinalizadasConOroEnPodio() const {
 
-    vector<Competencia> comp_finconor;
+    vector<Competencia> res;
     unsigned int i = 0;
-    vector<Competencia> comp_iterar = this->competencias();
+    vector<Competencia> comps = competencias();
 
-    while (i < comp_iterar.size()) {
-        if (comp_iterar[i].finalizada() && comp_iterar[i].ranking().size() > 0) comp_finconor.push_back(comp_iterar[i]);
-
+    while (i < comps.size()) {
+        if (comps[i].finalizada() && comps[i].ranking().size() > 0)
+            res.push_back(comp_iterar[i]);
         i++;
     }
 
-
-    return comp_finconor;
+    return res;
 }
 
 vector<Atleta> JJOO::dePaseo() const {

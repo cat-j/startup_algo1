@@ -1,0 +1,372 @@
+\documentclass[a4paper]{article}
+
+\usepackage[spanish]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{listings}
+\usepackage{amsthm}
+
+\usepackage{framed}
+\input{Algo1Macros}
+
+\newcommand{\comen}[2]{%
+\begin{framed}	
+\noindent \textsf{#1:} #2
+\end{framed}
+}
+
+\newcommand\tab[1][1cm]{\hspace*{#1}}
+
+\begin{document}
+
+\materia{Algoritmos y Estructura de Datos I}
+\cuatrimestre{2}
+\anio{2016}
+
+%\fecha{26 de agosto de 2016}
+
+\nombre{\LARGE TPI - Demostraci\'on de correctitud - funci\'on JJOO::atletaProdigio()}
+
+\titulotp
+
+
+\author{Sacha Bebchuk, Oliver Gibson, Catalina Juarros, Miguel Nehmad-Alch\'e}
+
+\lstset{language=C++}
+
+\tableofcontents
+
+\bigskip
+
+\section{C\'odigo}
+
+\begin{lstlisting}
+Atleta JJOO::atletaProdigio() const {
+	vector <Competencia> compsOro = competenciasFinalizadasConOroEnPodio();
+	Atleta res = compsOro[0].ranking()[0];
+	int mayorAnio = res.anioNacimiento();
+
+	unsigned int i = 0;
+
+	while (i<compsOro.size()) {
+		if (compsOro[i].ranking[0].anioNacimiento() > mayorAnio) {
+			res = compsOro[i].ranking()[0];
+			mayorAnio = compsOro[i].ranking()[0].anioNacimiento();
+		}
+		i++;
+	}
+
+	return res;
+}
+\end{lstlisting}
+
+\pagebreak
+
+\section{Transformaci\'on de estados del programa}
+
+Definimos
+\\
+\\
+$P_{C}: i==0 \land algunaVezSeCompitio \land res == ranking(comps_{0})_{0} \land mayorAnio == anioNacimiento(res)$
+\\
+\\
+invariante $I: 0 \leq i \leq |compsOro| \land algunaVezSeCompitio \land  esCampeon(res,j) \land mayorAnio == anioNacimiento(res) \land
+	\\
+	 (\forall c \in compsOro[0..i)) anioNacimiento(campeon(c)) \leq anioNacimiento(res)$
+\\
+\\
+$Q_{C}: esCampeon(res,j) \land (\forall c \in compsOro) anioNacimiento(campeon(c)) \leq anioNacimiento(res)$
+
+\bigskip
+
+\begin{lstlisting}
+Atleta JJOO::atletaProdigio() const {
+\end{lstlisting}
+	//estado $E_{0}$;
+	\\
+	//vale $algunaVezSeCompitio: |competenciasConOroEnPodio(this)| > 0;$
+	\\	
+	\tab por \texttt{requiere}
+\begin{lstlisting}
+	vector <Competencia> compsOro = competenciasFinalizadasConOroEnPodio();
+\end{lstlisting}
+	//estado $E_{1}$;
+	\\
+	//vale $algunaVezSeCompitio \land compsOro == competenciasConOroEnPodio(this);$
+\begin{lstlisting}
+	Atleta res = compsOro[0].ranking()[0];
+\end{lstlisting}
+	//estado $E_{2}$;
+	\\
+	//vale $algunaVezSeCompitio \land compsOro == compsOro@E_{1} \land res == compsOro[0].ranking()[0];$
+\begin{lstlisting}
+	int mayorAnio = res.anioNacimiento();
+\end{lstlisting}
+	//estado $E_{3}$;
+	\\
+	//vale $algunaVezSeCompitio \land compsOro == compsOro@E_{2} \land res == res@E_{2} \land mayorAnio == res.anioNacimiento();$
+\begin{lstlisting}
+	unsigned int i = 0;
+\end{lstlisting}
+	//estado $E_{4}$;
+	\\
+	//vale $algunaVezSeCompitio \land compsOro == compsOro@E_{3} \land res == res@E_{3} \land mayorAnio == mayorAnio@E_{3} \land i == 0;$
+	\\
+	//implica $algunaVezSeCompitio \land compsOro == compsOro@E_{1} \land res == res@E_{2} \land mayorAnio == res.anioNacimiento() \land i == 0;$
+	\\
+	\tab por estados anteriores
+	\\
+	\\
+	//implica $algunaVezSeCompitio \land compsOro == competenciasConOroEnPodio(this) \land res == res@E_{2} \land mayorAnio == anioNacimiento(res) \land i == 0;$
+	\\
+	\tab por especificaci\'on de los problemas $competenciasFinalizadasConOroEnPodio$ y $anioNacimiento$
+	\\
+	\\
+	//implica $P_{C}: i==0 \land algunaVezSeCompitio \land res == ranking(comps_{0})_{0} \land mayorAnio == anioNacimiento(res)$
+	\\
+	//implica $I: 0 \leq i \leq |compsOro| \land algunaVezSeCompitio \land  esCampeon(res,j) \land mayorAnio == anioNacimiento(res) \land
+	\\
+	 (\forall c \in compsOro[0..i)) anioNacimiento(campeon(c)) \leq anioNacimiento(res)$
+\begin{lstlisting}
+	while (i<compsOro.size()) {
+		if (compsOro[i].ranking[0].anioNacimiento() > mayorAnio) {
+			res = compsOro[i].ranking()[0];
+			mayorAnio = compsOro[i].ranking()[0].anioNacimiento();
+		}
+		i++;
+	}
+\end{lstlisting}
+	//estado $E_{5};$
+	\\
+	//vale $Q_{C}: esCampeon(res,j) \land (\forall c \in compsOro) anioNacimiento(campeon(c)) \leq anioNacimiento(res);$
+	\\
+	//implica $esCampeon(res,j) \land (\forall c \in competenciasConOroEnPodio(j)) anioNacimiento(campeon(c)) \leq anioNacimiento(res);$
+\begin{lstlisting}
+
+	return res;
+}
+\end{lstlisting}
+
+\medskip
+Como el \'ultimo estado es equivalente a la cl\'ausula \texttt{asegura} de la especificaci\'on y \texttt{res} es el valor de retorno, el programa es correcto respecto de la especificaci\'on.
+
+\pagebreak 
+
+\section{Correctitud del ciclo}
+
+\subsection{$P_{c} \rightarrow I$}
+
+\paragraph{$P_{C}: i==0 \land algunaVezSeCompitio \land res == ranking(comps_{0})_{0} \land mayorAnio == anioNacimiento(res)$}
+
+\paragraph{$I: 0 \leq i \leq |compsOro| \land esCampeon(res,j) \land mayorAnio == anioNacimiento(res) \land
+	\\
+	 (\forall c \in compsOro[0..i)) anioNacimiento(campeon(c)) \leq anioNacimiento(res)$}
+
+\begin{enumerate}
+\item $mayorAnio == anioNacimiento(res)$: trivial
+\item $i==0 \rightarrow 0 \leq i$
+\item $algunaVezSeCompitio \rightarrow |compsOro| > 0 \rightarrow 0 == i < |compsOro|$
+\\ (como $competenciasFinalizadasConOroEnPodio$ es correcta respecto de su especificaci\'on, \\ $compsOro == competenciasConOroEnPodio(j)$)
+\item $res == ranking(comps_{0})_{0} \rightarrow (\exists c \in competenciasConOroEnPodio(c)) res == ranking(c)_{0} \rightarrow esCampeon(res,j)$
+\item $i==0 \rightarrow compsOro[0..i)$ es una lista vac\'ia y cualquier predicado sobre todos sus elementos es verdadero.
+\end{enumerate}
+
+\subsection{$(I \land \lnot B) \rightarrow Q_{C}$}
+
+\paragraph{$(I \ and \lnot B): 0 \leq i \leq |compsOro| \land esCampeon(res,j) \land mayorAnio == anioNacimiento(res) \land
+	\\
+	 (\forall c \in compsOro[0..i)) anioNacimiento(campeon(c)) \leq anioNacimiento(res) \land i \geq |compsOro|$}
+\paragraph{$Q_{C}: esCampeon(res,j) \land (\forall c \in compsOro) anioNacimiento(campeon(c)) \leq anioNacimiento(res)$}
+
+\begin{enumerate}
+\item $esCampeon(res,j)$: trivial
+\item $(i \leq |compsOro| \land i \geq |compsOro|) \rightarrow i == |compsOro|$
+\item $i == |compsOro| \rightarrow compsOro[0..i) == compsOro$
+\item $( ( (\forall c \in compsOro[0..i)) anioNacimiento(campeon(c)) \leq anioNacimiento(res) ) \land compsOro[0..i) == compsOro ) \rightarrow (\forall c \in compsOro) anioNacimiento(campeon(c)) \leq anioNacimiento(res)$
+\end{enumerate}
+
+\subsection{Preservaci\'on de $I$}
+
+Sea $Pif = I \land B: 0 \leq i < |compsOro| \land esCampeon(res,j) \land mayorAnio == anioNacimiento(res) \land
+	\\
+	 (\forall c \in compsOro[0..i)) anioNacimiento(campeon(c)) \leq anioNacimiento(res)$
+
+\begin{lstlisting}
+	while (i<compsOro.size()) {
+\end{lstlisting}
+//estado $C_{0}$;
+\\
+//vale $I \land B;$
+	 \\
+//implica $P_{if}; $
+\begin{lstlisting}
+		if (compsOro[i].ranking[0].anioNacimiento() > mayorAnio) {
+			res = compsOro[i].ranking()[0];
+			mayorAnio = compsOro[i].ranking()[0].anioNacimiento();
+		}
+\end{lstlisting}
+//estado $C_{1}$;
+\\
+//vale $Q_{if}: 0 \leq i < |compsOro| \land esCampeon(res,j) \land mayorAnio == anioNacimiento(res) \land
+	\\
+	 (\forall c \in compsOro[0..i]) anioNacimiento(campeon(c)) \leq anioNacimiento(res)$;
+\\
+//vale $i == i@C_{0}$;
+\begin{lstlisting}
+		i++;
+\end{lstlisting}
+//estado $C_{2}$;
+\\
+//vale $i == i@C_{1}+1 \land 0 \leq i@C_{1} < |compsOro| \land esCampeon(res,j) \land mayorAnio == anioNacimiento(res) \land
+	\\
+	 (\forall c \in compsOro[0..i@C_{1}]) anioNacimiento(campeon(c)) \leq anioNacimiento(res)$;
+\\
+//implica $i == i@C_{0}+1 \land 0 \leq i < |compsOro|+1 \land esCampeon(res,j) \land mayorAnio == anioNacimiento(res) \land
+	\\
+	 (\forall c \in compsOro[0..i@C_{1}+1)) anioNacimiento(campeon(c)) \leq anioNacimiento(res)$;
+\\
+//implica $I: 0 \leq i \leq |compsOro| \land esCampeon(res,j) \land mayorAnio == anioNacimiento(res) \land
+	\\
+	 (\forall c \in compsOro[0..i)) anioNacimiento(campeon(c)) \leq anioNacimiento(res)$;
+\begin{lstlisting}
+	}
+\end{lstlisting}
+
+\subsection{Demostraci\'on del condicional}
+
+Tenemos:
+\\
+\\
+$P_{if}: 0 \leq i < |compsOro| \land esCampeon(res,j) \land mayorAnio == anioNacimiento(res) \land
+	\\
+	 (\forall c \in compsOro[0..i)) anioNacimiento(res) \leq anioNacimiento(campeon(c))$
+\\
+\\
+$Q_{if}: 0 \leq i < |compsOro| \land esCampeon(res,j) \land mayorAnio == anioNacimiento(res) \land
+	\\
+	 (\forall c \in compsOro[0..i]) anioNacimiento(res) \leq anioNacimiento(campeon(c))$
+\\
+\\
+$A: anioNacimiento(campeon(compsOro_{i})) > mayorAnio $
+\\
+\\
+Queremos ver que, dado $P_{if}$, $Q_{if}$ vale para tanto si $A$ es verdadero como si es falso.
+\\
+\\
+\textbf{Rama \texttt{true}}
+\\
+\\
+\begin{lstlisting}
+		if (compsOro[i].ranking()[0].anioNacimiento() > mayorAnio) {
+\end{lstlisting}
+//estado $ifT_{0}$;
+\\
+//vale $P_{if}: 0 \leq i < |compsOro| \land esCampeon(res,j) \land mayorAnio == anioNacimiento(res) \land
+	\\
+	 (\forall c \in compsOro[0..i)) anioNacimiento(res) \leq anioNacimiento(campeon(c))$;
+\\
+//vale $A: anioNacimiento(campeon(compsOro_{i})) > mayorAnio$;
+\begin{lstlisting}
+			res = compsOro[i].ranking()[0];
+\end{lstlisting}
+//estado $ifT_{1}$;
+\\
+//vale $((\forall c \in compsOro[0..i)) anioNacimiento(res@ifT_{0}) \leq anioNacimiento(campeon(c))) \land \\ anioNacimiento(campeon(compsOro_{i})) > mayorAnio@ifT_{0} \land res == compsOro[i].ranking()[0] \land i == i@ifT_{0}$;
+\begin{lstlisting}
+			mayorAnio = compsOro[i].ranking()[0].anioNacimiento();
+\end{lstlisting}
+//estado $ifT_{2}$;
+\\
+//vale $((\forall c \in compsOro[0..i)) anioNacimiento(res@ifT_{0}) \leq anioNacimiento(campeon(c))) \land \\ anioNacimiento(campeon(compsOro_{i})) > mayorAnio@ifT_{0} \land res == res@ifT_{1} \\ \land mayorAnio == compsOro[i].ranking()[0].anioNacimiento() \land i == i@ifT_{1}$;
+\\
+//implica $((\forall c \in compsOro[0..i)) anioNacimiento(res@ifT_{0}) \leq anioNacimiento(campeon(c))) \land \\ anioNacimiento(campeon(compsOro_{i})) > mayorAnio@ifT_{0} \land res == res@compsOro[i].ranking()[0] \land mayorAnio == compsOro[i].ranking()[0].anioNacimiento() \land 0 \leq i < |comps|$;
+\\
+\tab por estados anteriores
+\\
+\\
+//implica $((\forall c \in compsOro[0..i)) anioNacimiento(res@ifT_{0}) \leq anioNacimiento(campeon(c))) \land \\ anioNacimiento(campeon(compsOro_{i})) > mayorAnio@ifT_{0} \land res == ranking(compsOro_{i})_{0} \land \\ mayorAnio == anioNacimiento(ranking(compsOro_{i})_{0}) \land 0 \leq i < |comps|$;
+\\
+\tab porque $ranking$ y $anioNacimiento$ son correctas respecto de su especificaci\'on
+\\
+\\
+//implica $((\forall c \in compsOro[0..i]) anioNacimiento(res) \leq anioNacimiento(campeon(c))) \land res == ranking(compsOro_{i})_{0} \land mayorAnio == anioNacimiento(ranking(compsOro_{i})_{0}) \land 0 \leq i < |comps|$;
+\\
+\tab porque $compsOro[0..i] == compsOro[0..i) ++ compsOro_{i}$ y ya chequeamos que el a\~no de nacimiento fuera mayor
+\\
+\\
+//implica $Q_{if}$;
+\tab por definici\'on de $campeon$
+\begin{lstlisting}
+		}
+\end{lstlisting}
+\textbf{Rama \texttt{false}}
+\\
+\\
+//estado $ifF_{0}$;
+\\
+//vale $Pif: 0 \leq i < |compsOro| \land esCampeon(res,j) \land mayorAnio == anioNacimiento(res) \land
+	\\
+	 (\forall c \in compsOro[0..i)) anioNacimiento(res) \leq anioNacimiento(campeon(c))$
+\\
+//vale $\lnot A: anioNacimiento(campeon(compsOro_{i})) \leq mayorAnio$;
+\\
+//implica $(\forall c \in compsOro[0..i]) anioNacimiento(res) \leq anioNacimiento(campeon(c))$
+\\
+\tab porque $compsOro[0..i] == compsOro[0..i) ++ compsOro_{i} \land anioNacimiento(campeon(compsOro_{i})) \leq mayorAnio \land mayorAnio == anioNacimiento(res)$
+
+\pagebreak
+
+\section{Terminaci\'on del ciclo}
+
+\subsection{$v$ decrece}
+
+Sea la funci\'on variante $v: |compsOro|-i$.
+\\
+Quiero ver que $v@C_{2} < v@C_{1}$.
+
+\begin{lstlisting}
+	while (i<compsOro.size()) {
+\end{lstlisting}
+//estado $C_{0}$;
+\\
+//variante $v: |compsOro|-i$;
+\begin{lstlisting}
+		if (compsOro[i].ranking()[0].anioNacimiento() > mayorAnio) {
+			res = compsOro[i].ranking()[0];
+			mayorAnio = compsOro[i].ranking()[0].anioNacimiento();
+		}
+\end{lstlisting}
+//estado $C_{1}$;
+\\
+//vale $i == i@C_{0}$;
+\begin{lstlisting}
+		i++;
+\end{lstlisting}
+//estado $C_{2}$;
+\\
+//vale $i == i@C_{1}+1 \land v == v-i$;
+\\
+//implica $i == i@C_{0}+1$;
+\\
+//implica $v == v-(i@C_{0}+1)$;
+\\
+//implica $v == (v-i@C_{0})-1$;
+\\
+//implica $v == v@C_{0}-1$;
+\\
+//implica $v@C_{2} < v@C_{0}$;
+\begin{lstlisting}
+	}
+\end{lstlisting}
+
+\subsection{$v \leq 0 \rightarrow \lnot B$}
+
+Quiero ver que $v \leq 0 \rightarrow \lnot B$.
+\\
+\\
+$v \leq 0 \leftrightarrow |compsOro| - i \leq 0 \leftrightarrow |compsOro| \leq i \leftrightarrow \lnot B$
+
+\section{Conclusi\'on}
+
+Como pudimos probar que el ciclo termina y es correcto, y que la cl\'ausula \texttt{asegura} del problema \texttt{atletaProdigio} vale en el estado final del programa, hemos demostrado que la funci\'on \texttt{JJ00::atletaProdigio()} es correcta respecto de la especificaci\'on propuesta.
+
+\end{document}

@@ -5,7 +5,7 @@ de los tipos compuestos para referirnos a los valores de retorno de estas funcio
 
 tambien asumimos que l.size() == |l|
 
-TODO: DEMOSTRAR FINALIZADA, RANKING Y COMPETENCIAS */
+TO DO: DEMOSTRAR FINALIZADA, RANKING Y COMPETENCIAS */
 
 Atleta campeon(const Competencia &c) {
 	//estado E0;
@@ -17,9 +17,9 @@ Atleta campeon(const Competencia &c) {
 }
 //demostramos que campeon es correcta con respecto a la especificacion del problema campeon
 
-//DEMOSTRACION DE DAMECOMPSORO
+//DEMOSTRACION DE competenciasFinalizadasConOroEnPodio
 
-vector <Competencia> dameCompsOro(const JJOO &j) {
+vector <Competencia> competenciasFinalizadasConOroEnPodio(const JJOO &j) {
 	//estado E0;
 	vector <Competencia> res;
 	//estado E1;
@@ -72,26 +72,53 @@ vector <Competencia> dameCompsOro(const JJOO &j) {
 	return res;
 }
 
+//Pc: algunaVezSeCompitio && i == 0 && res == campeon(compsOro[0]) && mayorAnio == anioNacimiento(campeon(compsOro[0]))
+//Qc: esCampeon(res,j) && (forall c en compsOro) anioNacimiento(res) >= anioNacimiento(campeon(c))
+//I: algunaVezSeCompitio && 0 <= i <= |compsOro| esCampeon(res,j) && (forall c in compsOro[0..i)) anioNacimiento(res) >= anioNacimiento(campeon(c))
+
+//Pif: 
+
 Atleta atletaProdigio(const JJOO &j) {
 	//estado E0;
 	//vale algunaVezSeCompitio: |competenciasConOroEnPodio(j)| > 0; (por requiere)
-	vector <Competencia> compsOro = dameCompsOro(j);
+	vector <Competencia> compsOro = competenciasFinalizadasConOroEnPodio(j);
 	//estado E1;
-	//vale algunaVezSeCompitio && compsOro == dameCompsOro(j); (por estado anterior)
-	//implica compsOro == competenciasConOroEnPodio(j); (por especificacion de dameCompsOro)
+	//vale algunaVezSeCompitio && compsOro == competenciasFinalizadasConOroEnPodio(j); (por estado anterior)
 	Atleta res = campeon(compsOro[0]);
 	//estado E2;
 	//vale algunaVezSeCompitio && compsOro == compsOro@E1 && res == campeon(compsOro[0]);
 	int mayorAnio = res.anioNacimiento();
 	//estado E3;
-	//vale algunaVezSeCompitio && compsOro == compsOro@E2 && res == res@E1 && mayorAnio == res@E1.anioNacimiento();
+	//vale algunaVezSeCompitio && compsOro == compsOro@E2 && res == res@E2 && mayorAnio == anioNacimiento(res);
 
 	unsigned int i = 0;
+	//estado E4;
+	//vale algunaVezSeCompitio && compsOro == compsOro@E2 && res == res@E2 && mayorAnio == anioNacimiento(res) && i==0;
+	//implica Pc: algunaVezSeCompitio && i == 0 && res == campeon(compsOro[0]) && mayorAnio == anioNacimiento(campeon(compsOro[0]));
+	//implica I: algunaVezSeCompitio && 0 <= i <= |compsOro| esCampeon(res,j) && (forall c in compsOro[0..i)) anioNacimiento(res) >= anioNacimiento(campeon(c)) (porque si i == 0 entonces comps[0..i) es una lista vacia)
 
 	while (i<compsOro.size()) {
 		if (campeon(compsOro[i]).anioNacimiento() > mayorAnio) {
 			res = campeon(compsOro[i]);
 			mayorAnio = campeon(compsOro[i]).anioNacimiento;
+		}
+		i++;
+	}
+
+	return res;
+}
+
+Atleta JJOO::atletaProdigio() const {
+	vector <Competencia> compsOro = competenciasFinalizadasConOroEnPodio();
+	Atleta res = compsOro[0].ranking()[0];
+	int mayorAnio = res.anioNacimiento();
+
+	unsigned int i = 0;
+
+	while (i<compsOro.size()) {
+		if (campeon(compsOro[i]).anioNacimiento() > mayorAnio) {
+			res = compsOro[i].ranking()[0];
+			mayorAnio = compsOro[i].ranking()[0].anioNacimiento();
 		}
 		i++;
 	}
